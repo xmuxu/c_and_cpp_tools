@@ -102,32 +102,32 @@ void *dequeue(queue_t *queue) {
     return data;
 }
 
+queue_t queue;
+pthread_t producer, consumer;
+
+int producer_data[] = {1, 2, 3, 4, 5};
+const int producer_data_size = sizeof(producer_data) / sizeof(producer_data[0]);
+
+void *producer_func(void *arg) {
+	for (int i = 0; i < producer_data_size; i++) {
+		enqueue(&queue, &(producer_data[i]));
+		printf("Producer: enqueued %d\n", producer_data[i]);
+	}
+
+	return NULL;
+}
+
+void *consumer_func(void *arg) {
+	for (int i = 0; i < producer_data_size; i++) {
+		int *data = dequeue(&queue);
+		printf("Consumer: dequeued %d\n", *data);
+	}
+
+	return NULL;
+}
+
 int main() {
-    queue_t queue;
     queue_init(&queue, QUEUE_POOL_SIZE);
-
-    pthread_t producer, consumer;
-
-    int producer_data[] = {1, 2, 3, 4, 5};
-    const int producer_data_size = sizeof(producer_data) / sizeof(producer_data[0]);
-
-    void *producer_func(void *arg) {
-        for (int i = 0; i < producer_data_size; i++) {
-            enqueue(&queue, &(producer_data[i]));
-            printf("Producer: enqueued %d\n", producer_data[i]);
-        }
-
-        return NULL;
-    }
-
-    void *consumer_func(void *arg) {
-        for (int i = 0; i < producer_data_size; i++) {
-            int *data = dequeue(&queue);
-            printf("Consumer: dequeued %d\n", *data);
-        }
-
-        return NULL;
-    }
 
     pthread_create(&producer, NULL, &producer_func, NULL);
     pthread_create(&consumer, NULL, &consumer_func, NULL);
